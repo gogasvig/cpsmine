@@ -17,6 +17,8 @@ import sys
 FMT = "%Y/%m/%d %H:%M:%S"
 COMPRESS_FMT = "%Y%m%d%H%M%S"
 
+PROTO_LIST = ('icmp', 'tcp', 'udp')
+
 
 def add_group_args(group):
     '''add_group_args
@@ -71,7 +73,7 @@ def add_optional_args(parser):
 
     parser.add_argument(
         '-p', '--protocol',
-        choices=('tcp', 'udp', 'icmp', 'other', 'all'),
+        choices=(PROTO_LIST + ('other', 'all')),
         default='all',
         help='Protocol for which cps needs to be calculated. '
         'By default we calculate cps for udp/tcp and icmp.')
@@ -339,8 +341,6 @@ def skip_row(row, interface, proto, zone):
 
     '''
 
-    PROTO_LIST = ('icmp', 'tcp', 'udp')
-
     IP_PROTO = 'IP Protocol'
 
     # Set row_key and target depending on whether we are searching for
@@ -353,17 +353,19 @@ def skip_row(row, interface, proto, zone):
         row_key = 'Source Zone'
         target = zone
 
-    if proto == 'all':
-        if row[row_key] == target:
-            return False
+    # Don't even look at the proto if the target doesn't match.
 
-    if proto in PROTO_LIST and row[IP_PROTO] in PROTO_LIST:
-        if row[row_key] == target:
-            return False
+    if row[row_key] != target:
+        return True
+
+    if proto == 'all':
+        return False
 
     if proto == 'other' and row[IP_PROTO] not in PROTO_LIST:
-        if row[row_key] == target:
-            return False
+        return False
+
+    if proto == row[IP_PROTO]:
+        return False
 
     return True
 
