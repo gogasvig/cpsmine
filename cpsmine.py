@@ -15,7 +15,7 @@ import sys
 
 
 FMT = "%Y/%m/%d %H:%M:%S"
-COMPRESS_FMT = "%Y%m%d%H%M%S"
+COMPRESSED_TS = "%Y%m%d%H%M%S"
 
 PROTO_LIST = ('icmp', 'tcp', 'udp')
 
@@ -123,7 +123,7 @@ def evaluate_cpsdict(cpsdict, cli_vars):
     # Set initial values using the first sorted key.
 
     previous_key = sorted_keys[0]
-    previous_ts = datetime.strptime(previous_key, COMPRESS_FMT)
+    previous_ts = datetime.strptime(previous_key, COMPRESSED_TS)
 
     count = cpsdict[previous_key]
 
@@ -133,7 +133,7 @@ def evaluate_cpsdict(cpsdict, cli_vars):
 
     for key in sorted_keys[1:]:
 
-        ts = datetime.strptime(key, COMPRESS_FMT)
+        ts = datetime.strptime(key, COMPRESSED_TS)
 
         # Check if the time delta between the two timestamps
         # is smaller than 1/2 of the interval.
@@ -313,17 +313,17 @@ def process_csvfile(reader, cli_vars):
             if skip_row(row, interface, proto, zone):
                 continue
 
-            t1 = datetime.strptime(row[START_TIME], FMT)
+            ts = datetime.strptime(row[START_TIME], FMT)
 
-            compress_t1 = t1.strftime(COMPRESS_FMT)
+            compressed_ts = ts.strftime(COMPRESSED_TS)
 
-            # If there is already an key for compress_t1 then add one
+            # If there is already an key for compressed_ts then add one
             # to its count otherwise create a new key entry.
 
-            if cpsdict.get(compress_t1):
-                cpsdict[compress_t1] += 1
+            if cpsdict.get(compressed_ts):
+                cpsdict[compressed_ts] += 1
             else:
-                cpsdict[compress_t1] = 1
+                cpsdict[compressed_ts] = 1
 
     except csv.Error as errmsg:
         sys.exit('ERROR: file: {}, line: {}; {}'.format(
