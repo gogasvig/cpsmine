@@ -341,18 +341,16 @@ def skip_row(row, interface, proto, zone):
 
     PROTO_LIST = ('icmp', 'tcp', 'udp')
 
-    IN_IF = 'Inbound Interface'
     IP_PROTO = 'IP Protocol'
-    SRC_ZONE = 'Source Zone'
 
     # Set row_key and target depending on whether we are searching for
     # an interface or a zone.
 
     if interface:
-        row_key = IN_IF
+        row_key = 'Inbound Interface'
         target = interface
     else:
-        row_key = SRC_ZONE
+        row_key = 'Source Zone'
         target = zone
 
     if proto == 'all':
